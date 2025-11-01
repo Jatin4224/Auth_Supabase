@@ -15,6 +15,7 @@ function App() {
     description: "",
   });
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [newDescription, setNewDescription] = useState("");
 
   const fetchTasks = async () => {
     const { error, data } = await supabase
@@ -49,6 +50,19 @@ function App() {
 
   const deleteTask = async (id: number) => {
     const { error } = await supabase.from("tasks").delete().eq("id", id);
+
+    if (error) {
+      console.log("Error adding task: ", error.message);
+      return;
+    }
+
+    setNewTask({ title: "", description: "" });
+  };
+  const updateTask = async (id: number) => {
+    const { error } = await supabase
+      .from("tasks")
+      .update({ description: newDescription })
+      .eq("id", id);
 
     if (error) {
       console.log("Error adding task: ", error.message);
@@ -104,9 +118,13 @@ function App() {
               <h3>{task.title}</h3>
               <p>{task.description}</p>
               <div>
-                <textarea placeholder="Updated description..." />
+                <textarea
+                  placeholder="Updated description..."
+                  onChange={(e) => setNewDescription(e.target.value)}
+                />
                 <button
                   style={{ padding: "0.5rem 1rem", marginRight: "0.5rem" }}
+                  onClick={() => updateTask(task.id)}
                 >
                   Edit
                 </button>
