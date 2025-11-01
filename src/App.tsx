@@ -1,55 +1,126 @@
+import { useEffect, useState } from "react";
 import "./App.css";
+import supabase from "./supabase-client";
+
+interface Task {
+  id: number;
+  title: string;
+  description: string;
+  created_at: string;
+}
 
 function App() {
-  return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-900 text-white p-6">
-      <h1 className="text-3xl font-semibold mb-8">Task Manager CRUD</h1>
+  const [newTask, setNewTask] = useState({
+    title: "",
+    description: "",
+  });
+  const [tasks, setTasks] = useState<Task[]>([]);
 
-      {/* Input Section */}
-      <div className="w-full max-w-md bg-gray-800 rounded-2xl p-6 shadow-lg">
+  const fetchTasks = async () => {
+    const { error, data } = await supabase
+      .from("tasks")
+      .select("*")
+      .order("created_at", { ascending: true });
+
+    if (error) {
+      console.error("Error reading task: ", error.message);
+      return;
+    }
+    setTasks(data);
+  };
+
+  useEffect(() => {
+    fetchTasks();
+  });
+
+  console.log(tasks);
+
+  const handleSubmit = async (e: any) => {
+    e.preventDefault();
+    const { error } = await supabase.from("tasks").insert(newTask).single();
+
+    if (error) {
+      console.log("Error adding task: ", error.message);
+      return;
+    }
+
+    setNewTask({ title: "", description: "" });
+  };
+
+  const deleteTask = async (id: number) => {
+    const { error } = await supabase.from("tasks").delete().eq("id", id);
+
+    if (error) {
+      console.log("Error adding task: ", error.message);
+      return;
+    }
+
+    setNewTask({ title: "", description: "" });
+  };
+
+  return (
+    <div style={{ maxWidth: "600px", margin: "0 auto", padding: "1rem" }}>
+      <h2>Task Manager</h2>
+
+      {/* Form to add a new task */}
+      <form onSubmit={handleSubmit} style={{ marginBottom: "1rem" }}>
         <input
           type="text"
           placeholder="Task Title"
-          className="w-full p-2 mb-3 rounded-md bg-gray-700 placeholder-gray-400 outline-none"
+          onChange={(e) =>
+            setNewTask((prev) => ({ ...prev, title: e.target.value }))
+          }
+          style={{ width: "100%", marginBottom: "0.5rem", padding: "0.5rem" }}
         />
         <textarea
           placeholder="Task Description"
-          className="w-full p-2 mb-4 rounded-md bg-gray-700 placeholder-gray-400 outline-none h-24 resize-none"
-        ></textarea>
-        <button className="w-full bg-blue-500 hover:bg-blue-600 transition-all rounded-md py-2 font-medium">
+          onChange={(e) =>
+            setNewTask((prev) => ({ ...prev, description: e.target.value }))
+          }
+          style={{ width: "100%", marginBottom: "0.5rem", padding: "0.5rem" }}
+        />
+
+        <input type="file" accept="image/*" />
+
+        <button type="submit" style={{ padding: "0.5rem 1rem" }}>
           Add Task
         </button>
-      </div>
+      </form>
 
-      {/* Task List Section */}
-      <div className="w-full max-w-md mt-8 space-y-4">
-        {/* Example Task Card */}
-        <div className="bg-gray-800 p-4 rounded-xl shadow-md">
-          <h2 className="text-lg font-semibold mb-1">Title</h2>
-          <p className="text-gray-400 mb-4">Description</p>
-          <div className="flex gap-2">
-            <button className="flex-1 bg-yellow-500 hover:bg-yellow-600 rounded-md py-1 transition">
-              Edit
-            </button>
-            <button className="flex-1 bg-red-500 hover:bg-red-600 rounded-md py-1 transition">
-              Delete
-            </button>
-          </div>
-        </div>
+      {/* List of Tasks */}
 
-        <div className="bg-gray-800 p-4 rounded-xl shadow-md">
-          <h2 className="text-lg font-semibold mb-1">Another Task</h2>
-          <p className="text-gray-400 mb-4">Some description here...</p>
-          <div className="flex gap-2">
-            <button className="flex-1 bg-yellow-500 hover:bg-yellow-600 rounded-md py-1 transition">
-              Edit
-            </button>
-            <button className="flex-1 bg-red-500 hover:bg-red-600 rounded-md py-1 transition">
-              Delete
-            </button>
-          </div>
-        </div>
-      </div>
+      <ul style={{ listStyle: "none", padding: 0 }}>
+        {tasks.map((task, key) => (
+          <li
+            key={key}
+            style={{
+              border: "1px solid #ccc",
+              borderRadius: "4px",
+              padding: "1rem",
+              marginBottom: "0.5rem",
+            }}
+          >
+            <div>
+              <h3>{task.title}</h3>
+              <p>{task.description}</p>
+              <div>
+                <textarea placeholder="Updated description..." />
+                <button
+                  style={{ padding: "0.5rem 1rem", marginRight: "0.5rem" }}
+                >
+                  Edit
+                </button>
+                <button
+                  style={{ padding: "0.5rem 1rem" }}
+                  onClick={() => deleteTask(task.id)}
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
