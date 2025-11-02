@@ -40,3 +40,78 @@
 .read-the-docs {
   color: #888;
 }
+
+/* Dark Theme Styles */
+
+body {
+  background-color: #0d1117; /* Deep dark background */
+  color: #e6edf3; /* Soft white text */
+  font-family: "Inter", sans-serif;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+button {
+  background-color: #238636; /* GitHub green button tone */
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.1s ease;
+}
+
+button:hover {
+  background-color: #2ea043;
+}
+
+button:active {
+  transform: scale(0.97);
+}
+
+.auth-container,
+.tasklist-container {
+  background-color: #161b22; /* Slightly lighter than body */
+  border: 1px solid #30363d;
+  border-radius: 10px;
+  padding: 30px;
+  width: 380px;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.4);
+}
+
+h1,
+h2,
+h3 {
+  color: #e6edf3;
+}
+
+input {
+  background-color: #0d1117;
+  border: 1px solid #30363d;
+  color: #e6edf3;
+  padding: 10px;
+  border-radius: 6px;
+  width: 100%;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+input:focus {
+  border-color: #238636;
+  outline: none;
+  box-shadow: 0 0 0 1px #238636;
+}
+
+a {
+  color: #58a6ff;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
