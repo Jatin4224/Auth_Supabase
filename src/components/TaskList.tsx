@@ -35,6 +35,36 @@ function TaskList() {
     fetchTasks();
   }, []); // ✅ added dependency array
 
+  //realtime
+  useEffect(() => {
+    const setupSubscription = async () => {
+      const { data } = await supabase.auth.getSession();
+      if (!data.session) return;
+
+      const channel = supabase
+        .channel("tasks-channel")
+        .on(
+          "postgres_changes",
+          {
+            event: "INSERT",
+            schema: "public",
+            table: "tasks",
+          },
+          (payload) => {
+            const newTask = payload.new as Task;
+            setTasks((prev) => [...prev, newTask]);
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    };
+
+    setupSubscription();
+  }, []);
+
   // ✅ Add a new task
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
